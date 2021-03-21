@@ -1,0 +1,116 @@
+blueprint:
+  name: Ventilate Room
+  description: Reminds you to close windows after ventilating and controls covers
+  domain: automation
+  input:
+    window_sensor:
+      name: Window Sensors
+      description: Window sensors to trigger the automation. Comma seperated list is possible
+    covers:
+      name: Covers
+      description: Covers to control
+      selector:
+        target:
+          entity:
+            domain: cover
+            device_class: shutter
+    media_players:
+      name: Media Players
+      description: Media Players to announce when its time to close the windows. Comma seperated list is possible
+    ventilation_time:
+      name: Ventilation Time
+      description: Time to wait after window is opened
+      selector:
+        number:
+          min: 0
+          max: 30
+          unit_of_measurement: "min"
+    elevation:
+      name: Sun Elevation
+      description: Below this elevation the covers will close automatically
+      selector:
+        number:
+          min: -30
+          max: 20
+          unit_of_measurement: "°"
+          mode: slider
+    text:
+      name: Text
+      description: Text to announce when its time to close the windows
+      selector:
+        text:
+    text_timeout:
+      name: Timeout Text
+      description: Text to announce when window is open way to long
+      selector:
+        text:
+
+trigger:
+  - platform: state
+    entity_id: !input window_sensor
+
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input window_sensor
+            state: "on"
+        sequence:
+          - service: cover.open_cover
+            target: !input covers
+          - delay:
+              minutes: !input ventilation_time
+          - condition: state
+            entity_id: !input window_sensor
+            state: "on"
+          - service: notify.notify
+            data:
+              message: !input text
+          - service: tts.google_cloud_say
+            entity_id: !input media_players
+            data:
+              message: !input text
+          - wait_for_trigger:
+              - platform: state
+                entity_id: !input window_sensor
+                to: "off"
+            continue_on_timeout: true
+            timeout: "00:20:00"
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input window_sensor
+                    state: "off"
+                  - condition: numeric_state
+                    entity_id: sun.sun
+                    attribute: elevation
+                    below: !input elevation
+                sequence:
+                  - service: cover.close_cover
+                    target: !input covers
+              - conditions:
+                  - condition: state
+                    entity_id: !input window_sensor
+                    state: "on"
+                sequence:
+                  - service: notify.notify
+                    data:
+                      message: !input text_timeout
+                  - service: tts.google_cloud_say
+                    entity_id: !input media_players
+                    data:
+                      message: !input text_timeout
+            default: []
+      - conditions:
+          - condition: state
+            entity_id: !input window_sensor
+            state: "off"
+          - condition: numeric_state
+            entity_id: sun.sun
+            attribute: elevation
+            below: !input elevation
+        sequence:
+          - service: cover.close_cover
+            target: !input covers
+    default: []
+mode: restart
