@@ -70,37 +70,15 @@ action:
             entity_id: !input media_players
             data:
               message: !input text
-          - wait_for_trigger:
-              - platform: state
-                entity_id: !input window_sensor
-                to: "off"
-            continue_on_timeout: true
-            timeout: "00:20:00"
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: !input window_sensor
-                    state: "off"
-                  - condition: numeric_state
-                    entity_id: sun.sun
-                    attribute: elevation
-                    below: !input elevation
-                sequence:
-                  - service: cover.close_cover
-                    target: !input covers
-              - conditions:
-                  - condition: state
-                    entity_id: !input window_sensor
-                    state: "on"
-                sequence:
-                  - service: notify.notify
-                    data:
-                      message: !input text_timeout
-                  - service: tts.google_cloud_say
-                    entity_id: !input media_players
-                    data:
-                      message: !input text_timeout
-            default: []
+          - delay:
+              minutes: !input ventilation_time
+          - service: notify.notify
+            data:
+              message: !input text_timeout
+          - service: tts.google_cloud_say
+            entity_id: !input media_players
+            data:
+              message: !input text_timeout
       - conditions:
           - condition: state
             entity_id: !input window_sensor
