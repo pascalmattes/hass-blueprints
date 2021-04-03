@@ -36,11 +36,11 @@ blueprint:
       description: Media Players to announce when its time to close the windows. Comma seperated list is possible
     tts_script:
       name: TTS Script
-        description: The script that should be executed for tts
-        selector:
-          target:
-            entity:
-              domain: script
+      description: The script that should be executed for tts
+      selector:
+        target:
+          entity:
+            domain: script
     text:
       name: Text
       description: Text to announce when its time to close the windows
