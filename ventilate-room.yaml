@@ -14,9 +14,6 @@ blueprint:
           entity:
             domain: cover
             device_class: shutter
-    media_players:
-      name: Media Players
-      description: Media Players to announce when its time to close the windows. Comma seperated list is possible
     ventilation_time:
       name: Ventilation Time
       description: Time to wait after window is opened
@@ -34,6 +31,16 @@ blueprint:
           max: 20
           unit_of_measurement: "°"
           mode: slider
+    media_players:
+      name: Media Players
+      description: Media Players to announce when its time to close the windows. Comma seperated list is possible
+    tts_script:
+      name: TTS Script
+        description: The script that should be executed for tts
+        selector:
+          target:
+            entity:
+              domain: script
     text:
       name: Text
       description: Text to announce when its time to close the windows
@@ -66,19 +73,25 @@ action:
           - service: notify.notify
             data:
               message: !input text
-          - service: tts.google_cloud_say
-            entity_id: !input media_players
+          - service: script.turn_on
+            target:
+              entity_id: !input tts_script
             data:
-              message: !input text
+              variables:
+                where: !input media_players
+                what: !input text
           - delay:
               minutes: !input ventilation_time
           - service: notify.notify
             data:
               message: !input text_timeout
-          - service: tts.google_cloud_say
-            entity_id: !input media_players
+          - service: script.turn_on
+            target:
+              entity_id: !input tts_script
             data:
-              message: !input text_timeout
+              variables:
+                where: !input media_players
+                what: !input text_timeout
       - conditions:
           - condition: state
             entity_id: !input window_sensor
