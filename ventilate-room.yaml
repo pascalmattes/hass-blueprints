@@ -74,8 +74,7 @@ action:
             data:
               message: !input text
           - service: script.turn_on
-            target:
-              entity_id: !input tts_script
+            target: !input tts_script
             data:
               variables:
                 where: !input media_players
@@ -86,8 +85,7 @@ action:
             data:
               message: !input text_timeout
           - service: script.turn_on
-            target:
-              entity_id: !input tts_script
+            target: !input tts_script
             data:
               variables:
                 where: !input media_players
