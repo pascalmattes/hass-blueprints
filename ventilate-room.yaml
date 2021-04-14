@@ -1,19 +1,22 @@
 blueprint:
   name: Ventilate Room
-  description: Reminds you to close windows after ventilating and controls covers
+  description: Reminds you to close window after ventilating and controls cover
   domain: automation
   input:
     window_sensor:
-      name: Window Sensors
-      description: Window sensors to trigger the automation. Comma seperated list is possible
-    covers:
-      name: Covers
-      description: Covers to control
+      name: Window Sensor
+      description: Window sensor to trigger the automation.
       selector:
-        target:
-          entity:
-            domain: cover
-            device_class: shutter
+        entity:
+          domain: binary_sensor
+          device_class: door
+    cover:
+      name: Cover
+      description: Cover to control
+      selector:
+        entity:
+          domain: cover
+          device_class: shutter
     ventilation_time:
       name: Ventilation Time
       description: Time to wait after window is opened
@@ -25,7 +28,7 @@ blueprint:
           unit_of_measurement: "min"
     elevation:
       name: Sun Elevation
-      description: Below this elevation the covers will close automatically
+      description: Below this elevation the cover will close automatically
       default: -5
       selector:
         number:
@@ -66,8 +69,16 @@ action:
             entity_id: !input window_sensor
             state: "on"
         sequence:
-          - service: cover.open_cover
-            target: !input covers
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input window_sensor
+                    state: "0"
+                    attribute: current_position
+                sequence:
+                  - service: cover.open_cover
+                    target:
+                      entity_id: !input cover
           - delay:
               minutes: !input ventilation_time
           - condition: state
@@ -103,6 +114,7 @@ action:
             below: !input elevation
         sequence:
           - service: cover.close_cover
-            target: !input covers
+            target:
+              entity_id: !input cover
     default: []
 mode: restart
