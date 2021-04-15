@@ -72,7 +72,7 @@ action:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: !input window_sensor
+                    entity_id: !input cover
                     state: "0"
                     attribute: current_position
                 sequence:
