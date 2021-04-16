@@ -79,6 +79,7 @@ action:
                   - service: cover.open_cover
                     target:
                       entity_id: !input cover
+                default: []
           - delay:
               minutes: !input ventilation_time
           - condition: state
