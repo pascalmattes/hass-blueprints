@@ -77,7 +77,7 @@ action:
               - conditions:
                   - condition: state
                     entity_id: !input "cover"
-                    state: "0"
+                    state: 0
                     attribute: current_position
                 sequence:
                   - service: cover.open_cover
