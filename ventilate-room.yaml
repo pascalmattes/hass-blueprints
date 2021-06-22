@@ -62,7 +62,15 @@ blueprint:
       description: Text to announce when window is open way to long
       selector:
         text: {}
+    notify:
+      name: Notify
+      description: Enable or disable notification via smartphone and tts
+      default: true
+      selector:
+        boolean:
   source_url: https://github.com/pascalmattes/hass-blueprints/blob/master/ventilate-room.yaml
+variables:
+  enable_notify: !input notify
 trigger:
   - platform: state
     entity_id: !input "window_sensor"
@@ -89,6 +97,8 @@ action:
           - condition: state
             entity_id: !input "window_sensor"
             state: "on"
+          - condition: template
+            value_template: "{{ enable_notify }}"
           - service: notify.notify
             data:
               message: !input "text"
