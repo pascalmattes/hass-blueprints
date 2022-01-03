@@ -39,6 +39,13 @@ blueprint:
           unit_of_measurement: °
           mode: slider
           step: 1.0
+    home_mode:
+      name: Home Mode
+      description: Only close covers when sleep mode is enabled
+      default: input_select.home_mode
+      selector:
+        entity:
+          domain: input_select
     media_players:
       name: Media Players
       description:
@@ -127,6 +134,9 @@ action:
             entity_id: sun.sun
             attribute: elevation
             below: !input "elevation"
+          - condition: state
+            entity_id: !input "home_mode"
+            state: "Schlafen"
         sequence:
           - service: cover.close_cover
             target:
